@@ -57,6 +57,14 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        emerald: {
+          glow: "hsl(var(--emerald-glow))",
+          light: "hsl(var(--emerald-light))",
+        },
+        energy: "hsl(var(--energy-yellow))",
+        water: "hsl(var(--water-blue))",
+        waste: "hsl(var(--waste-purple))",
+        air: "hsl(var(--air-green))",
       },
       borderRadius: {
         lg: "var(--radius)",
