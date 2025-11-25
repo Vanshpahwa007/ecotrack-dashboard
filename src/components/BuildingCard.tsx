@@ -7,6 +7,7 @@ interface BuildingCardProps {
   occupancy: number;
   temperature: number;
   status: "optimal" | "warning" | "critical";
+  onClick?: () => void;
 }
 
 const statusColors = {
@@ -15,9 +16,12 @@ const statusColors = {
   critical: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
-export const BuildingCard = ({ name, energy, occupancy, temperature, status }: BuildingCardProps) => {
+export const BuildingCard = ({ name, energy, occupancy, temperature, status, onClick }: BuildingCardProps) => {
   return (
-    <div className="glass-card rounded-xl p-5 transition-smooth hover:shadow-xl">
+    <div 
+      className="glass-card rounded-xl p-5 transition-smooth hover:shadow-xl cursor-pointer hover-scale" 
+      onClick={onClick}
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
