@@ -6,6 +6,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HostelProvider, useHostel } from "./contexts/HostelContext";
 import { AppLayout } from "./components/AppLayout";
 import Dashboard from "./pages/Dashboard";
+import Energy from "./pages/Energy";
+import Water from "./pages/Water";
+import Waste from "./pages/Waste";
+import AirQuality from "./pages/AirQuality";
 import Settings from "./pages/Settings";
 import Occupancy from "./pages/Occupancy";
 import Setup from "./pages/Setup";
@@ -35,7 +39,10 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="dashboard/:tab" element={<Dashboard />} />
+              <Route path="dashboard/energy" element={<Energy />} />
+              <Route path="dashboard/water" element={<Water />} />
+              <Route path="dashboard/waste" element={<Waste />} />
+              <Route path="dashboard/air" element={<AirQuality />} />
               <Route path="settings" element={<Settings />} />
               <Route path="occupancy" element={<Occupancy />} />
             </Route>
