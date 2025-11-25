@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { Zap, Droplet, Trash2, Wind, Leaf, Play, Pause } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/MetricCard";
 import { BuildingCard } from "@/components/BuildingCard";
 import { AlertCard } from "@/components/AlertCard";
-import { DetailCard } from "@/components/DetailCard";
-import { SensorList } from "@/components/SensorList";
 import { useHostel } from "@/contexts/HostelContext";
 
 interface SensorData {
@@ -104,134 +101,57 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <Tabs defaultValue="dashboard" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="energy">Energy</TabsTrigger>
-          <TabsTrigger value="water">Water</TabsTrigger>
-          <TabsTrigger value="waste">Waste</TabsTrigger>
-          <TabsTrigger value="air">Air Quality</TabsTrigger>
-        </TabsList>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          icon={Zap}
+          title="Energy Usage"
+          value={`${Math.round(data.energy.usage)} kWh`}
+          subtitle={`${data.energy.savings.toFixed(1)}% savings`}
+          color="energy"
+          trend="down"
+        />
+        <MetricCard
+          icon={Droplet}
+          title="Water Consumption"
+          value={`${Math.round(data.water.consumption)} L`}
+          subtitle={`${data.water.savings.toFixed(1)}% savings`}
+          color="water"
+          trend="down"
+        />
+        <MetricCard
+          icon={Trash2}
+          title="Waste Generated"
+          value={`${Math.round(data.waste.total)} kg`}
+          subtitle={`${data.waste.recycled.toFixed(1)}% recycled`}
+          color="waste"
+          trend="up"
+        />
+        <MetricCard
+          icon={Wind}
+          title="Air Quality"
+          value={`${Math.round(data.air.quality)}`}
+          subtitle={`${Math.round(data.air.co2)} ppm CO2`}
+          color="air"
+        />
+      </div>
 
-        <TabsContent value="dashboard" className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <MetricCard
-              icon={Zap}
-              title="Energy Usage"
-              value={`${Math.round(data.energy.usage)} kWh`}
-              subtitle={`${data.energy.savings.toFixed(1)}% savings`}
-              color="energy"
-              trend="down"
-            />
-            <MetricCard
-              icon={Droplet}
-              title="Water Consumption"
-              value={`${Math.round(data.water.consumption)} L`}
-              subtitle={`${data.water.savings.toFixed(1)}% savings`}
-              color="water"
-              trend="down"
-            />
-            <MetricCard
-              icon={Trash2}
-              title="Waste Generated"
-              value={`${Math.round(data.waste.total)} kg`}
-              subtitle={`${data.waste.recycled.toFixed(1)}% recycled`}
-              color="waste"
-              trend="up"
-            />
-            <MetricCard
-              icon={Wind}
-              title="Air Quality"
-              value={`${Math.round(data.air.quality)}`}
-              subtitle={`${Math.round(data.air.co2)} ppm CO2`}
-              color="air"
-            />
-          </div>
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Building Performance</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          {buildings.map((building, i) => (
+            <BuildingCard key={i} {...building} />
+          ))}
+        </div>
+      </div>
 
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Building Performance</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {buildings.map((building, i) => (
-                <BuildingCard key={i} {...building} />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">System Alerts</h2>
-            <div className="space-y-2">
-              {alerts.map((alert, i) => (
-                <AlertCard key={i} {...alert} />
-              ))}
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="energy" className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-3">
-            <DetailCard icon={Zap} title="Current Usage" value={`${Math.round(data.energy.usage)} kWh`} subtitle="Real-time consumption" />
-            <DetailCard icon={Zap} title="Solar Generation" value={`${Math.round(data.energy.solar)} kWh`} subtitle="Renewable energy" />
-            <DetailCard icon={Zap} title="Cost Savings" value={`₹${Math.round(data.energy.cost)}`} subtitle="Monthly savings" />
-          </div>
-          <SensorList
-            title="Energy Sensors"
-            sensors={[
-              { name: "ACS712 Current Sensor", status: "active" as const },
-              { name: "ZMPT101B Voltage Sensor", status: "active" as const },
-              { name: "PZEM-004T Power Meter", status: "active" as const },
-            ]}
-          />
-        </TabsContent>
-
-        <TabsContent value="water" className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-3">
-            <DetailCard icon={Droplet} title="Daily Consumption" value={`${Math.round(data.water.consumption)} L`} subtitle="Total usage today" />
-            <DetailCard icon={Droplet} title="Flow Rate" value={`${data.water.flow.toFixed(1)} L/min`} subtitle="Current flow" />
-            <DetailCard icon={Droplet} title="Rainwater Harvested" value={`${Math.round(data.water.rainwater)} L`} subtitle="Collected today" />
-          </div>
-          <SensorList
-            title="Water Sensors"
-            sensors={[
-              { name: "YF-S201 Flow Sensor", status: "active" as const },
-              { name: "HC-SR04 Level Sensor", status: "active" as const },
-              { name: "TDS Water Quality Meter", status: "active" as const },
-            ]}
-          />
-        </TabsContent>
-
-        <TabsContent value="waste" className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-3">
-            <DetailCard icon={Trash2} title="Total Waste" value={`${Math.round(data.waste.total)} kg`} subtitle="Generated today" />
-            <DetailCard icon={Trash2} title="Recycled" value={`${data.waste.recycled.toFixed(1)}%`} subtitle="Recycling rate" />
-            <DetailCard icon={Trash2} title="Bin Level" value={`${Math.round(data.waste.binLevel)}%`} subtitle="Capacity used" />
-          </div>
-          <SensorList
-            title="Waste Sensors"
-            sensors={[
-              { name: "HC-SR04 Bin Level Sensor", status: "active" as const },
-              { name: "HX711 Load Cell", status: "active" as const },
-              { name: "IR Proximity Sensors", status: "active" as const },
-            ]}
-          />
-        </TabsContent>
-
-        <TabsContent value="air" className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-4">
-            <DetailCard icon={Wind} title="Air Quality Index" value={`${Math.round(data.air.quality)}`} subtitle="Excellent" />
-            <DetailCard icon={Wind} title="CO2 Level" value={`${Math.round(data.air.co2)} ppm`} subtitle="Normal range" />
-            <DetailCard icon={Wind} title="Temperature" value={`${data.air.temp.toFixed(1)}°C`} subtitle="Comfortable" />
-            <DetailCard icon={Wind} title="Humidity" value={`${Math.round(data.air.humidity)}%`} subtitle="Optimal" />
-          </div>
-          <SensorList
-            title="Air Quality Sensors"
-            sensors={[
-              { name: "DHT22 Temp/Humidity", status: "active" as const },
-              { name: "MQ-135 Air Quality", status: "active" as const },
-              { name: "MH-Z19 CO2 Sensor", status: "active" as const },
-            ]}
-          />
-        </TabsContent>
-      </Tabs>
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">System Alerts</h2>
+        <div className="space-y-2">
+          {alerts.map((alert, i) => (
+            <AlertCard key={i} {...alert} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
