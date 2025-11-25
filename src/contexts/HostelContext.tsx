@@ -17,6 +17,16 @@ interface Room {
   occupants: string[];
 }
 
+interface Building {
+  id: string;
+  name: string;
+  energy: number;
+  occupancy: number;
+  temperature: number;
+  status: "optimal" | "warning" | "critical";
+  microcontroller: string;
+}
+
 interface HostelContextType {
   config: HostelConfig;
   setConfig: (config: HostelConfig) => void;
@@ -24,7 +34,13 @@ interface HostelContextType {
   updateRoom: (id: string, updates: Partial<Room>) => void;
   addRoom: (room: Room) => void;
   deleteRoom: (id: string) => void;
+  buildings: Building[];
+  updateBuilding: (id: string, updates: Partial<Building>) => void;
+  addBuilding: (building: Building) => void;
+  deleteBuilding: (id: string) => void;
 }
+
+export type { Building };
 
 const HostelContext = createContext<HostelContextType | undefined>(undefined);
 
@@ -44,6 +60,11 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [buildings, setBuildings] = useState<Building[]>(() => {
+    const saved = localStorage.getItem('hostelBuildings');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   useEffect(() => {
     localStorage.setItem('hostelConfig', JSON.stringify(config));
   }, [config]);
@@ -51,6 +72,10 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     localStorage.setItem('hostelRooms', JSON.stringify(rooms));
   }, [rooms]);
+
+  useEffect(() => {
+    localStorage.setItem('hostelBuildings', JSON.stringify(buildings));
+  }, [buildings]);
 
   const setConfig = (newConfig: HostelConfig) => {
     setConfigState(newConfig);
@@ -68,8 +93,31 @@ export const HostelProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setRooms(prev => prev.filter(room => room.id !== id));
   };
 
+  const updateBuilding = (id: string, updates: Partial<Building>) => {
+    setBuildings(prev => prev.map(building => building.id === id ? { ...building, ...updates } : building));
+  };
+
+  const addBuilding = (building: Building) => {
+    setBuildings(prev => [...prev, building]);
+  };
+
+  const deleteBuilding = (id: string) => {
+    setBuildings(prev => prev.filter(building => building.id !== id));
+  };
+
   return (
-    <HostelContext.Provider value={{ config, setConfig, rooms, updateRoom, addRoom, deleteRoom }}>
+    <HostelContext.Provider value={{ 
+      config, 
+      setConfig, 
+      rooms, 
+      updateRoom, 
+      addRoom, 
+      deleteRoom,
+      buildings,
+      updateBuilding,
+      addBuilding,
+      deleteBuilding
+    }}>
       {children}
     </HostelContext.Provider>
   );

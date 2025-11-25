@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Zap, Droplet, Trash2, Wind, Leaf, Play, Pause } from "lucide-react";
+import { Zap, Droplet, Trash2, Wind, Leaf, Play, Pause, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/MetricCard";
 import { BuildingCard } from "@/components/BuildingCard";
 import { AlertCard } from "@/components/AlertCard";
 import { useHostel } from "@/contexts/HostelContext";
+import { BuildingEditDialog } from "@/components/BuildingEditDialog";
+import type { Building } from "@/contexts/HostelContext";
 
 interface SensorData {
   energy: { usage: number; savings: number; solar: number; cost: number };
@@ -15,8 +17,10 @@ interface SensorData {
 }
 
 export default function Dashboard() {
-  const { config } = useHostel();
+  const { config, buildings, addBuilding, updateBuilding, deleteBuilding } = useHostel();
   const [isLive, setIsLive] = useState(true);
+  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [data, setData] = useState<SensorData>({
     energy: { usage: 850, savings: 23, solar: 320, cost: 1250 },
     water: { consumption: 1250, savings: 18, flow: 45, rainwater: 280 },
@@ -68,12 +72,31 @@ export default function Dashboard() {
     ...(data.air.co2 > 430 ? [{ type: "warning" as const, message: "CO2 levels elevated", timestamp: new Date().toLocaleTimeString() }] : []),
   ];
 
-  const buildings = [
-    { name: "Academic Block A", energy: `${Math.round(data.energy.usage * 0.3)} kWh`, occupancy: 78, temperature: data.air.temp, status: "optimal" as const },
-    { name: "Library", energy: `${Math.round(data.energy.usage * 0.2)} kWh`, occupancy: 45, temperature: data.air.temp + 1, status: "optimal" as const },
-    { name: "Hostel Complex", energy: `${Math.round(data.energy.usage * 0.35)} kWh`, occupancy: 92, temperature: data.air.temp - 1, status: "optimal" as const },
-    { name: "Lab Building", energy: `${Math.round(data.energy.usage * 0.15)} kWh`, occupancy: 34, temperature: data.air.temp + 2, status: "optimal" as const },
-  ];
+  const handleAddBuilding = () => {
+    const newBuilding: Building = {
+      id: Date.now().toString(),
+      name: `Building ${buildings.length + 1}`,
+      energy: Math.round(data.energy.usage * 0.25),
+      occupancy: 50,
+      temperature: data.air.temp,
+      status: "optimal",
+      microcontroller: "Not Connected"
+    };
+    addBuilding(newBuilding);
+  };
+
+  const handleEditBuilding = (building: Building) => {
+    setSelectedBuilding(building);
+    setIsDialogOpen(true);
+  };
+
+  const handleSaveBuilding = (updates: Partial<Building>) => {
+    if (selectedBuilding) {
+      updateBuilding(selectedBuilding.id, updates);
+    }
+    setIsDialogOpen(false);
+    setSelectedBuilding(null);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -136,10 +159,24 @@ export default function Dashboard() {
       </div>
 
       <div>
-        <h2 className="text-2xl font-semibold mb-4">Building Performance</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-semibold">Building Performance</h2>
+          <Button onClick={handleAddBuilding} size="sm" className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Building
+          </Button>
+        </div>
         <div className="grid gap-4 md:grid-cols-2">
-          {buildings.map((building, i) => (
-            <BuildingCard key={i} {...building} />
+          {buildings.map((building) => (
+            <BuildingCard 
+              key={building.id}
+              name={building.name}
+              energy={`${Math.round(building.energy)} kWh`}
+              occupancy={building.occupancy}
+              temperature={building.temperature}
+              status={building.status}
+              onClick={() => handleEditBuilding(building)}
+            />
           ))}
         </div>
       </div>
@@ -152,6 +189,20 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
+
+      <BuildingEditDialog
+        building={selectedBuilding}
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onSave={handleSaveBuilding}
+        onDelete={() => {
+          if (selectedBuilding) {
+            deleteBuilding(selectedBuilding.id);
+            setIsDialogOpen(false);
+            setSelectedBuilding(null);
+          }
+        }}
+      />
     </div>
   );
 }
