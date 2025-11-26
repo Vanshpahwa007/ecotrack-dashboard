@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Home, DoorOpen } from 'lucide-react';
-import ecotrackLogo from '@/assets/ecotrack-logo.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -52,8 +51,8 @@ export default function Setup() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/20 via-background to-secondary/20">
       <Card className="w-full max-w-md animate-fade-in backdrop-blur-sm bg-background/95 border-border/50">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4">
-            <img src={ecotrackLogo} alt="EcoTrack Logo" className="h-16 w-auto mx-auto" />
+          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-green-500/20 flex items-center justify-center">
+            <Building2 className="h-8 w-8 text-green-600" />
           </div>
           <CardTitle className="text-2xl">Welcome to EcoTrack</CardTitle>
           <CardDescription>Configure your smart campus settings</CardDescription>
