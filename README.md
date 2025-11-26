@@ -116,28 +116,3 @@ Click "Connect to ESP32"
 Live data will start streaming!
 
 
-📁 Project Structure
-ecotrack-dashboard/
-├── public/
-│   └── assets/           # Static assets
-├── src/
-│   ├── components/       # React components
-│   │   ├── Dashboard.jsx
-│   │   ├── MetricCard.jsx
-│   │   ├── BuildingCard.jsx
-│   │   └── AlertPanel.jsx
-│   ├── hooks/           # Custom React hooks
-│   ├── utils/           # Utility functions
-│   ├── App.jsx          # Main app component
-│   ├── main.jsx         # Entry point
-│   └── index.css        # Global styles
-├── esp32/
-│   ├── esp32_sensor_code.ino  # ESP32 Arduino code
-│   └── libraries/              # Required libraries
-├── docs/
-│   ├── CIRCUIT.md       # Circuit diagram guide
-│   └── API.md           # API documentation
-├── package.json
-├── tailwind.config.js
-├── vite.config.js
-└── README.md
