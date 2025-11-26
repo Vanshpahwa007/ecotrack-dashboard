@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Zap, Droplet, Trash2, Wind, Users, Settings, LogOut } from 'lucide-react';
+import { Home, Zap, Droplet, Trash2, Wind, Users, Settings, LogOut, Building2 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -55,7 +55,10 @@ export const AppLayout = () => {
     <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full">
         <Sidebar className="border-r border-border/50">
-          <div className="p-4 border-b border-border/50">
+          <div className="p-4 border-b border-border/50 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+              <Building2 className="h-6 w-6 text-green-600" />
+            </div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               EcoTrack Campus
             </h1>
