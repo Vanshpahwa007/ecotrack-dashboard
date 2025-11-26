@@ -51,8 +51,8 @@ export default function Setup() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/20 via-background to-secondary/20">
       <Card className="w-full max-w-md animate-fade-in backdrop-blur-sm bg-background/95 border-border/50">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-            <Building2 className="h-8 w-8 text-primary-foreground" />
+          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-green-500/20 flex items-center justify-center">
+            <Building2 className="h-8 w-8 text-green-600" />
           </div>
           <CardTitle className="text-2xl">Welcome to EcoTrack</CardTitle>
           <CardDescription>Configure your smart campus settings</CardDescription>
