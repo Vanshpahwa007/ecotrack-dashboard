@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Zap, Droplet, Trash2, Wind, Users, Settings, LogOut, Building2 } from 'lucide-react';
+import { Home, Zap, Droplet, Trash2, Wind, Users, Settings, LogOut } from 'lucide-react';
+import ecotrackLogo from '@/assets/ecotrack-logo.png';
 import {
   Sidebar,
   SidebarContent,
@@ -56,11 +57,9 @@ export const AppLayout = () => {
       <div className="min-h-screen flex w-full">
         <Sidebar className="border-r border-border/50">
           <div className="p-4 border-b border-border/50 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-              <Building2 className="h-6 w-6 text-green-600" />
-            </div>
+            <img src={ecotrackLogo} alt="EcoTrack Logo" className="h-10 w-auto" />
             <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              EcoTrack Campus
+              Campus
             </h1>
           </div>
 
