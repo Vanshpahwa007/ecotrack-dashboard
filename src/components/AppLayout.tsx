@@ -52,7 +52,7 @@ export const AppLayout = () => {
   };
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full">
         <Sidebar className="border-r border-border/50">
           <div className="p-4 border-b border-border/50">
