@@ -1,0 +1,287 @@
+#include <WiFi.h>
+#include <WebServer.h>
+#include <ArduinoJson.h>
+
+// WiFi Configuration
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+// Web Server on port 80
+WebServer server(80);
+
+// Simulated Sensor Variables
+float energyCurrent = 800.0;
+float energySaved = 23.0;
+float waterCurrent = 1200.0;
+float waterSaved = 18.0;
+float wasteCurrent = 65.0;
+float wasteRecycled = 45.0;
+int airQuality = 90;
+int co2Level = 400;
+float temperature = 22.0;
+float humidity = 45.0;
+float solarGeneration = 240.0;
+float voltage = 230.0;
+float amperage = 3.5;
+float waterFlowRate = 12.0;
+int binLevel = 60;
+
+// Building data
+struct Building {
+  int id;
+  String name;
+  float energy;
+  int occupancy;
+  String status;
+  float temp;
+  float humidity;
+};
+
+Building buildings[4] = {
+  {1, "Academic Block A", 240.0, 75, "optimal", 23.0, 45},
+  {2, "Library", 150.0, 42, "optimal", 22.0, 50},
+  {3, "Hostel Complex", 310.0, 90, "optimal", 25.0, 55},
+  {4, "Lab Building", 125.0, 32, "optimal", 21.0, 48}
+};
+
+// Timer for data updates
+unsigned long lastUpdate = 0;
+const long updateInterval = 3000; // Update data every 3 seconds
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Connect to WiFi
+  WiFi.begin(ssid, password);
+  Serial.print("\n\nConnecting to WiFi");
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+  Serial.println("\n\n========================================");
+  Serial.println("       ESP32 SMART CAMPUS SYSTEM       ");
+  Serial.println("========================================");
+  Serial.println("WiFi Connected Successfully!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+  Serial.println("========================================");
+  Serial.println("Copy this IP and paste in dashboard!");
+  Serial.println("========================================\n");
+  
+  // Setup Web Server Routes
+  server.on("/api/sensors", HTTP_OPTIONS, handleOptions);
+  server.on("/api/sensors", HTTP_GET, handleSensorsRequest);
+  
+  server.begin();
+  Serial.println("HTTP Server Started on Port 80");
+  Serial.println("Waiting for dashboard connections...\n");
+}
+
+void loop() {
+  server.handleClient();
+  
+  // Update simulated data periodically
+  if (millis() - lastUpdate >= updateInterval) {
+    updateSimulatedData();
+    lastUpdate = millis();
+  }
+}
+
+// Simulate realistic sensor data changes
+void updateSimulatedData() {
+  // Energy variations (800-900 kWh)
+  energyCurrent += random(-50, 51) * 0.1;
+  energyCurrent = constrain(energyCurrent, 750, 950);
+  
+  // Energy saved percentage (20-26%)
+  energySaved += random(-2, 3) * 0.1;
+  energySaved = constrain(energySaved, 20, 26);
+  
+  // Water consumption (1100-1400 L)
+  waterCurrent += random(-30, 31) * 0.1;
+  waterCurrent = constrain(waterCurrent, 1100, 1400);
+  
+  // Water saved (15-22%)
+  waterSaved += random(-1, 2) * 0.1;
+  waterSaved = constrain(waterSaved, 15, 22);
+  
+  // Waste (60-75 kg)
+  wasteCurrent += random(-5, 6) * 0.1;
+  wasteCurrent = constrain(wasteCurrent, 60, 75);
+  
+  // Waste recycled (40-50%)
+  wasteRecycled += random(-2, 3) * 0.1;
+  wasteRecycled = constrain(wasteRecycled, 40, 50);
+  
+  // Air quality (85-95)
+  airQuality += random(-3, 4);
+  airQuality = constrain(airQuality, 85, 95);
+  
+  // CO2 levels (380-450 ppm)
+  co2Level += random(-10, 11);
+  co2Level = constrain(co2Level, 380, 450);
+  
+  // Temperature (20-26°C)
+  temperature += random(-2, 3) * 0.1;
+  temperature = constrain(temperature, 20, 26);
+  
+  // Humidity (40-60%)
+  humidity += random(-3, 4) * 0.1;
+  humidity = constrain(humidity, 40, 60);
+  
+  // Solar generation (200-280 kWh)
+  solarGeneration += random(-10, 11) * 0.1;
+  solarGeneration = constrain(solarGeneration, 200, 280);
+  
+  // Voltage (220-240V)
+  voltage += random(-5, 6) * 0.1;
+  voltage = constrain(voltage, 220, 240);
+  
+  // Amperage (3.0-4.5A)
+  amperage += random(-3, 4) * 0.1;
+  amperage = constrain(amperage, 3.0, 4.5);
+  
+  // Water flow rate (10-15 L/min)
+  waterFlowRate += random(-2, 3) * 0.1;
+  waterFlowRate = constrain(waterFlowRate, 10, 15);
+  
+  // Bin level (50-85%)
+  binLevel += random(-5, 6);
+  binLevel = constrain(binLevel, 50, 85);
+  
+  // Update buildings
+  for (int i = 0; i < 4; i++) {
+    buildings[i].energy += random(-10, 11) * 0.1;
+    buildings[i].energy = constrain(buildings[i].energy, 
+                                    (i == 0) ? 200 : (i == 1) ? 130 : (i == 2) ? 280 : 100,
+                                    (i == 0) ? 270 : (i == 1) ? 180 : (i == 2) ? 350 : 150);
+    
+    buildings[i].occupancy += random(-3, 4);
+    buildings[i].occupancy = constrain(buildings[i].occupancy, 30, 95);
+    
+    buildings[i].temp += random(-1, 2) * 0.1;
+    buildings[i].temp = constrain(buildings[i].temp, 20, 26);
+    
+    buildings[i].humidity += random(-2, 3) * 0.1;
+    buildings[i].humidity = constrain(buildings[i].humidity, 40, 60);
+    
+    // Set status based on conditions
+    if (buildings[i].occupancy > 85 || buildings[i].temp > 25) {
+      buildings[i].status = "warning";
+    } else {
+      buildings[i].status = "optimal";
+    }
+  }
+  
+  // Print update to serial
+  Serial.println("=== Data Updated ===");
+  Serial.printf("Energy: %.1f kWh | Water: %.1f L | Waste: %.1f kg\n", 
+                energyCurrent, waterCurrent, wasteCurrent);
+  Serial.printf("Air Quality: %d | CO2: %d ppm | Temp: %.1f°C\n", 
+                airQuality, co2Level, temperature);
+  Serial.println("====================\n");
+}
+
+// Handle CORS preflight
+void handleOptions() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.send(200);
+}
+
+// Handle API Request for Sensor Data
+void handleSensorsRequest() {
+  // Create JSON response
+  StaticJsonDocument<3072> doc;
+  
+  // Energy Data
+  JsonObject energy = doc.createNestedObject("energy");
+  energy["current"] = round(energyCurrent * 10) / 10.0;
+  energy["saved"] = round(energySaved * 10) / 10.0;
+  energy["trend"] = "down";
+  energy["solar"] = round(solarGeneration * 10) / 10.0;
+  energy["voltage"] = round(voltage * 10) / 10.0;
+  energy["amperage"] = round(amperage * 100) / 100.0;
+  
+  // Water Data
+  JsonObject water = doc.createNestedObject("water");
+  water["current"] = round(waterCurrent * 10) / 10.0;
+  water["saved"] = round(waterSaved * 10) / 10.0;
+  water["trend"] = "down";
+  water["flowRate"] = round(waterFlowRate * 10) / 10.0;
+  
+  // Waste Data
+  JsonObject waste = doc.createNestedObject("waste");
+  waste["current"] = round(wasteCurrent * 10) / 10.0;
+  waste["recycled"] = round(wasteRecycled * 10) / 10.0;
+  waste["binLevel"] = binLevel;
+  
+  // Air Quality Data
+  JsonObject air = doc.createNestedObject("air");
+  air["quality"] = airQuality;
+  air["co2"] = co2Level;
+  air["temperature"] = round(temperature * 10) / 10.0;
+  air["humidity"] = round(humidity * 10) / 10.0;
+  air["trend"] = "stable";
+  
+  // Buildings Data
+  JsonArray buildingsArray = doc.createNestedArray("buildings");
+  
+  for (int i = 0; i < 4; i++) {
+    JsonObject building = buildingsArray.createNestedObject();
+    building["id"] = buildings[i].id;
+    building["name"] = buildings[i].name;
+    building["energy"] = round(buildings[i].energy * 10) / 10.0;
+    building["occupancy"] = buildings[i].occupancy;
+    building["status"] = buildings[i].status;
+    building["temp"] = round(buildings[i].temp * 10) / 10.0;
+    building["humidity"] = round(buildings[i].humidity * 10) / 10.0;
+  }
+  
+  // Alerts
+  JsonArray alerts = doc.createNestedArray("alerts");
+  
+  if (binLevel > 75) {
+    JsonObject alert1 = alerts.createNestedObject();
+    alert1["id"] = 1;
+    alert1["type"] = "warning";
+    alert1["msg"] = "Waste bin level high (" + String(binLevel) + "%) - Collection recommended";
+    alert1["time"] = "Just now";
+  }
+  
+  if (co2Level > 430) {
+    JsonObject alert2 = alerts.createNestedObject();
+    alert2["id"] = 2;
+    alert2["type"] = "warning";
+    alert2["msg"] = "CO2 levels elevated (" + String(co2Level) + " ppm) - Increase ventilation";
+    alert2["time"] = "1m ago";
+  }
+  
+  if (energyCurrent > 880) {
+    JsonObject alert3 = alerts.createNestedObject();
+    alert3["id"] = 3;
+    alert3["type"] = "info";
+    alert3["msg"] = "Peak energy usage detected - " + String(round(energyCurrent)) + " kWh";
+    alert3["time"] = "2m ago";
+  }
+  
+  JsonObject alert4 = alerts.createNestedObject();
+  alert4["id"] = 4;
+  alert4["type"] = "success";
+  alert4["msg"] = "All systems operational - Real-time data streaming";
+  alert4["time"] = "Just now";
+  
+  // Serialize JSON and send response
+  String response;
+  serializeJson(doc, response);
+  
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.send(200, "application/json", response);
+  
+  Serial.println("✓ API Request Served - Data sent to dashboard");
+}
